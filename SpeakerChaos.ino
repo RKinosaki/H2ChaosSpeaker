@@ -14,10 +14,15 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define PotRead A0
+#define PlayToggle 10
+#define VolTrackToggle 5
 
 // Initialise the player, it defaults to using Serial.
 DY::Player player;
-bool inputMode = false; //mode = 0 volume, mode = 1 track sets vol on default
+bool inputMode = true; //mode = 0 volume, mode = 1 track sets vol on default
+int vol = 10;
+int track = 1;
+int currPot;
 
 void setup() {
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
@@ -25,60 +30,63 @@ void setup() {
   }
   player.begin();
   pinMode(PotRead, INPUT);
+  pinMode(PlayToggle, INPUT_PULLUP);
+  pinMode(VolTrackToggle, INPUT_PULLUP);
   display.display();
   delay(10);
   display.clearDisplay();
 }
 
-int readVal(bool mode) {
+int readVal(bool mode, int currVol, int currTrack) {
   float rawVal = analogRead(PotRead);
   if(!mode){ //mode = 0 volume, mode = 1 track
     int Vol = map(rawVal, 0, 1023, 0, 30);
-    player.playSpecified(1);
+    player.playSpecified(currTrack);
     player.setVolume(Vol);
     return Vol;
   }
   else{
     int Track = map(rawVal, 0, 1023, 0, 273);
-    player.setVolume(10);
+    player.setVolume(currVol);
     player.playSpecified(Track);
     return Track;
   } 
   
 }
 
-void updateInfo(bool mode){
+void updateInfo(int mode, int Vol, int Track){
   display.clearDisplay();
-  display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 10);
-  if(!mode){
-    int rawVal = int(floor(analogRead(PotRead)*30/1023));
-    display.println("Vol:" + String(rawVal));
-  }
-  else{
-    float rawVal = analogRead(PotRead);
-    int newVal = int(floor(rawVal*273/1023));
-    display.println("Track:" + String(newVal));
-  }
-  
+  display.setTextSize(mode ? 1:2);
+  display.setCursor(0, 0);
+  display.println("Vol:" + String(Vol));
+  display.setTextSize(mode ? 2:1);
+  display.setCursor(0, (mode ? 16 : 20));
+  display.println("Track:" + String(Track));
   display.display();
   delay(10);
 }
 
 
 void loop() {
-  updateInfo(inputMode);
-  readVal(inputMode);
+  updateInfo(inputMode, vol, track);
   delay(100);
-  updateInfo(inputMode);
-  delay(100);
-  
-  
-  // while(button is not pressed){
-    //add the display updates here as well, 
-    // delay(10000); //adds delay while the button isn't pressed, making it go indefinitely
-  // }
+  if(!digitalRead(VolTrackToggle)){
+    currPot = analogRead(PotRead);
+    inputMode = !inputMode;
+  }
+  if(currPot<analogRead(PotRead)-40 || analogRead(PotRead)+40<currPot){
+    if(inputMode){
+      track = readVal(inputMode, vol, track);
+    }
+    else{
+      vol = readVal(inputMode, vol, track);
+    }
+  }  
+  while(!digitalRead(PlayToggle)){
+    player.setVolume(vol);
+    delay(1000); //adds delay while the button isn't pressed, making it go indefinitely
+  }
 
 
   
