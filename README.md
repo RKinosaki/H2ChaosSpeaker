@@ -15,3 +15,7 @@ For the sake of compactness and no loose wires, there is also a PCB file with th
 
 ![image](PCB/Images/ChaosSpeaker.jpg)
 ![image](PCB/Images/ChaosSpeaker_Back.jpg)
+
+The PCB was designed in altium, and all the files to recreate it is in the PCB folder above.
+The manufacturing was ordered on JLCPCB, by adding the Gerber Zip file within the PCB folder. 
+For the manufacture methods, it should be purple silkscreen, ENIG surface finish, and remove mark for the PCB. Every other setting should be unchanged.
