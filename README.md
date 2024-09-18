@@ -9,3 +9,6 @@ Speaker code for Hades 2 Chaos cosplay, equipped with a slider for volume and tr
 - Battery Port
 - 9V Battery
 - OLED Screen
+
+# PCB
+For the sake of compactness and no loose wires, there is also a PCB file with the image as follows.
