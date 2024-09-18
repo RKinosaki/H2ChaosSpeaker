@@ -13,5 +13,5 @@ Speaker code for Hades 2 Chaos cosplay, equipped with a slider for volume and tr
 # PCB
 For the sake of compactness and no loose wires, there is also a PCB file with the image as follows.
 
-[!image](PCB/Images/ChaosSpeaker.jpg)
-[!image](PCB/Images/ChaosSpeaker_Back.jpg)
+![image](PCB/Images/ChaosSpeaker.jpg)
+![image](PCB/Images/ChaosSpeaker_Back.jpg)
