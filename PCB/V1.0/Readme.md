@@ -14,8 +14,8 @@ First rendition of the Chaos Speaker - later renamed as Cacophony. This was tria
 # PCB
 For the sake of compactness and no loose wires, there is also a PCB file with the image as follows.
 
-![image](PCB/V1.0/Images/ChaosSpeaker.jpg)
-![image](PCB/V1.0/Images/ChaosSpeaker_Back.jpg)
+![image](Images/ChaosSpeaker.jpg)
+![image](Images/ChaosSpeaker_Back.jpg)
 
 The PCB was designed in altium, and all the files to recreate it is in the PCB folder above.
 The manufacturing was ordered on JLCPCB, by adding the Gerber Zip file within the PCB folder. 
