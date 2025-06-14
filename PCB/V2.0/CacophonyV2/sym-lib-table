@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Cacophony")(type "KiCad")(uri "${KIPRJMOD}/Cacophony.kicad_sym")(options "")(descr ""))
+  (lib (name "MiniBuck")(type "KiCad")(uri "C:/Users/C1v2t/OneDrive - Imperial College London/Desktop/Projects/Cosplay - Chaos/SpeakerChaos/Cacophony/MiniBuck.kicad_sym")(options "")(descr ""))
+)
