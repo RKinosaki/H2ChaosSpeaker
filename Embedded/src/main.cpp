@@ -3,99 +3,76 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "task.h"
+#include "config.h"
+#include "Wire.h"
 
-#define X_PIN 8
-#define Y_PIN 7
-#define Z_PIN 9
+sysState boardState;
+
 
 float x, y, z = 0;
-float prevX, prevY, prevZ;
-int levelIdx = 0;
-int deadzone = 100;
-String levelNames[3] = {"Default", "Volume", "Voices"};
+
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  delay(2000);
+  pinMode(Z_PIN, INPUT);
+  pinMode(X_PIN, INPUT);
+  pinMode(Y_PIN, INPUT);
 
-  pinMode(X_PIN,INPUT);
-  pinMode(Y_PIN,INPUT);
-  pinMode(Z_PIN,INPUT_PULLUP);
   Serial.println("Starting...");
 
-  
-}
+  boardState.mutex = xSemaphoreCreateMutex();
 
+  //Create Tasks
 
-float inDeadZone(float prevValue, float value, int deadzone){ //checks if the value is outside the deadzone, in which case the value is updated
-  float JSVal;
-  if((value>prevValue + deadzone)||(value<prevValue - deadzone)){ //checks if the value is outside the deadzone
-    JSVal = value;
-  }
-  else{ //if it is inside the deadzone, it will keep the previous value
-    JSVal = prevValue;
-  }
-  return JSVal;
-}
+  #if DISPLAY_DATA
+    xTaskCreate(
+      displayOLED,        //Function Name
+      "OLED",              //Text Name
+      5000,               //Stack size (bytes)
+      NULL,               //Parameters
+      DISPLAY_PRIORITY,       // Priority
+      &displayHandle        // Pointer
+    );
+  #endif
 
-char JSReadDirection(float prevValue, float value, int deadzone, bool axis){//axis True = x direction, False = y direction
-  char JSDirection;
-  if((value>prevValue + deadzone)&& axis){ //checks if the value is outside the deadzone
-    JSDirection = 'r';
-  }
-  else if ((value>prevValue + deadzone)&& !axis){
-    JSDirection = 'u';
-  }
-  else if ((value<prevValue - deadzone)&& axis){
-    JSDirection = 'l';
-  }
-  else if ((value<prevValue - deadzone)&& !axis){
-    JSDirection = 'd';
-  }
-  else{ //if it is inside the deadzone, it will keep the previous value
-    JSDirection = 'n';
-  }
-  return JSDirection;
-}
+  #if READ_JOYSTICK
+    xTaskCreate(
+      controlJoystick,        //Function Name
+      "Joystick",              //Text Name
+      2500,               //Stack size (bytes)
+      NULL,               //Parameters
+      JOYSTICK_PRIORITY,       // Priority
+      &joystickHandle        // Pointer
+    );
+  #endif
 
-void changeMenuLevel(char direction){
-  // Serial.println(direction);
-  // Serial.println("Before change: " + levelNames[levelIdx]);
-  if (direction == 'r'){
-    levelIdx == 2 ? levelIdx = 0 : levelIdx += 1; 
-    delay(250);
-  }
-  else if (direction == 'l'){
-    levelIdx == 0 ? levelIdx = 2: levelIdx -= 1; 
-    delay(250);
-  }
-  // Serial.println("After change: " + levelNames[levelIdx]);
+  #if MOVE_SERVO
+    xTaskCreate(
+      moveServo,        //Function Name
+      "Servo",              //Text Name
+      2500,               //Stack size (bytes)
+      NULL,               //Parameters
+      SERVO_PRIORITY,       // Priority
+      &servoHandle       // Pointer
+    );
+  #endif
+
+   #if PLAY_AUDIO
+    xTaskCreate(
+      playAudio,        //Function Name
+      "Audio",              //Text Name
+      2500,               //Stack size (bytes)
+      NULL,               //Parameters
+      AUDIO_PRIORITY,       // Priority
+      &audioHandle       // Pointer
+    );
+  #endif
 }
 
 void loop() {
-  // Show the display buffer on the screen. You MUST call display() after
-  // drawing commands to make them visible on screen!
-  prevX = x;
-  prevY = y;
-  prevZ = z;
-  //Reads the current values //Deadzone calculation, check inDeadZone function
-  x = inDeadZone(prevX, analogRead(X_PIN), deadzone);
-  y = inDeadZone(prevY, analogRead(Y_PIN), deadzone);
-  z = digitalRead(Z_PIN);
-  
-  // Serial.println(levelNames[levelIdx]);
-  changeMenuLevel(JSReadDirection(prevX, x, deadzone, true));
-
-  // Serial.print(">levelIdx:");
-  // Serial.println(levelIdx);
-
-  
-  // Serial.print(">x:");
-  // Serial.println(x);
-  // Serial.print(">y:");
-  // Serial.println(y);
-  // Serial.print(">z:");
-  // Serial.println(z);
-  delayMicroseconds(500);
-
+  Serial.println("Starting Loop...");
+  vTaskDelay(pdMS_TO_TICKS(1000));
 }

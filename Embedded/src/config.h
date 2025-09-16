@@ -1,0 +1,46 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include <Arduino.h>
+
+// === TASKS === //
+#define HARDWARE_TIMER_PRESCALER 80
+
+//DisplayData Task
+#define DISPLAY_DATA true
+#define DISPLAY_FREQ 100
+#define DISPLAY_PRIORITY 1
+
+//Joystick Task
+#define READ_JOYSTICK false
+#define JOYSTICK_FREQ 5
+#define JOYSTICK_PRIORITY 2
+
+//Servo task
+#define MOVE_SERVO false
+#define SERVO_FREQ 5
+#define SERVO_PRIORITY 3
+
+#define deadzone 500
+
+//Audio task
+#define PLAY_AUDIO false
+#define AUDIO_FREQ 1
+#define AUDIO_PRIORITY 4
+
+//PINS
+#define SCL 9
+#define SDA 8
+
+#define X_PIN 4
+#define Y_PIN 5
+#define Z_PIN 6
+
+#define S0 12
+#define S1 11
+#define sDummy 10
+#define servoMinUs 1000
+#define servoMaxUs 2000
+
+
+#endif
