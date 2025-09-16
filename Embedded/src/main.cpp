@@ -12,11 +12,31 @@ sysState boardState;
 
 float x, y, z = 0;
 
+MenuLevel levelDefault("Default", 0);
+MenuLevel levelVoices("Voices", 1, false, 1, 20);
+MenuLevel levelVolume("Volume", 2, false, 4, 10);
+MenuLevel levelEyes("Eyes", 3, false, 0);
+
+void setupFSMRelations(){
+    levelDefault.next = &levelVolume;
+    levelDefault.prev = &levelEyes;
+
+    levelVolume.next = &levelVoices;
+    levelVolume.prev = &levelDefault;
+
+    levelVoices.next = &levelEyes;
+    levelVoices.prev = &levelVolume;
+
+    levelEyes.next = &levelDefault;
+    levelEyes.prev = &levelVoices;
+}
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   delay(2000);
+
+  setupFSMRelations();
   pinMode(Z_PIN, INPUT);
   pinMode(X_PIN, INPUT);
   pinMode(Y_PIN, INPUT);

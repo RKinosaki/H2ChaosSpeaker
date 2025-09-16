@@ -15,19 +15,34 @@ void controlJoystick(void *pvParameter);
 void moveServo(void *pvParameter);
 void playAudio(void *pvParameter);
 
+class MenuLevel {
+public:   // <--- make constructor & members accessible
+    const char* name;
+    uint8_t id;
+    bool selected;
+    uint8_t value;
+    uint8_t valueMax;
+
+    MenuLevel* next;
+    MenuLevel* prev;
+
+    // Constructor
+    MenuLevel(const char* n, uint8_t i, bool sel = false, uint8_t val = 0, uint8_t vm = 0)
+        : name(n), id(i), selected(sel), value(val), valueMax(vm), next(nullptr), prev(nullptr) {}
+};
+
+//initialise level classes
+extern MenuLevel levelDefault;
+extern MenuLevel levelVoices;
+extern MenuLevel levelVolume;
+extern MenuLevel levelEyes;
+
+
+
 
 /*<-----    Shared variables    ----->*/
 struct sysState{
-    uint8_t levelID = 0;
-    uint8_t joyX = 0;
-    uint8_t joyY = 0;
-    uint8_t joyZ = 0;
-    bool selectedVolume = false;
-    bool selectedDefault = true;
-    bool selectedVoices = false;
-    bool selectedEyes = false;
-    uint16_t track = 0;
-    uint8_t volume = 0;
+    MenuLevel* currentLevel = &levelDefault;
     SemaphoreHandle_t mutex;
 };
 

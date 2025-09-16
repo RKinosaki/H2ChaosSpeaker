@@ -12,8 +12,8 @@
 #define DISPLAY_PRIORITY 1
 
 //Joystick Task
-#define READ_JOYSTICK false
-#define JOYSTICK_FREQ 5
+#define READ_JOYSTICK true
+#define JOYSTICK_FREQ 10
 #define JOYSTICK_PRIORITY 2
 
 //Servo task
