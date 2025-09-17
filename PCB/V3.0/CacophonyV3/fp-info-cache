@@ -1,4 +1,4 @@
-26210386229201286
+26257785812428182
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -391,6 +391,20 @@ battery CR-3032 coin cell vertical
 0
 2
 2
+Battery_Holder
+CR2032-SMD
+
+
+0
+3
+3
+Battery_Holder
+CR2032-THRU
+
+
+0
+3
+3
 Button_Switch_Keyboard
 SW_Cherry_MX_1.00u_PCB
 Cherry MX keyswitch, 1.00u, PCB mount, http://cherryamericas.com/wp-content/uploads/2014/12/mx_cat.pdf
@@ -61025,6 +61039,13 @@ GDT 3R-6
 0
 3
 3
+Fuse_Custom
+01530008
+01530008
+Fuse
+0
+2
+2
 Heatsink
 Heatsink_35x26mm_1xFixation3mm_Fischer-SK486-35
 Heatsink, 35mm x 26mm, 1x Fixation 3mm, Fischer SK486-35
@@ -68893,6 +68914,20 @@ Yellow 5381 Series LED
 0
 2
 2
+MOSFET
+SOIC127P600X175-8N
+SO-8_2024
+MOSFET (N-Channel)
+0
+8
+8
+MOSFET
+SOT95P237X112-3N
+Micro3
+MOSFET (N-Channel)
+0
+3
+3
 Module
 A20_OLINUXINO_LIME2
 A20 Olinuxino LIME2, 1.2GHz, 512-1024MB RAM, Micro-SD, NAND or eMMC, 1000Mbit Ethernet
@@ -90817,6 +90852,13 @@ TO-264-5 Vertical RM 3.81mm
 0
 5
 5
+PhoneCover
+BATHLD006SMT
+BAT-HLD-006-SMT-3
+Hardware
+0
+3
+3
 Potentiometer_SMD
 Potentiometer_ACP_CA6-VSMD_Vertical
 Potentiometer, vertical, ACP CA6-VSMD, http://www.acptechnologies.com/wp-content/uploads/2017/06/01-ACP-CA6.pdf
@@ -91790,6 +91832,41 @@ Potentiometer vertical vishay
 0
 3
 3
+Power IC
+CB1P24V
+CB1-P-24V
+Relay or Contactor
+0
+5
+5
+Power IC
+SO8-TH
+SOIC8N - Exposed pad on backside
+
+0
+8
+8
+Power IC
+SOT95P280X145-5N
+SOT-23-5
+Power Supply
+0
+5
+5
+Power IC
+SOT230P700X180-4N
+LM1117IMPX-3.3/NOPB
+Power Supply
+0
+4
+4
+Power_Connector
+AMASS_XT90PW-M
+
+
+0
+4
+4
 RF
 Skyworks_SKY13575_639LF
 http://www.skyworksinc.com/uploads/documents/SKY13575_639LF_203270D.pdf
@@ -95864,6 +95941,27 @@ sensor humidity temperature i2c iic digital
 0
 11
 7
+Sensor_IC
+SOIC127P600X175-8N
+ACS713ELCTR-20A-T
+Integrated Circuit
+0
+8
+8
+Sensor_IC
+SOP64P602X175-16N
+MAX 21-0055_O
+Integrated Circuit
+0
+16
+16
+Sensor_IC
+SOP65P490X110-8N
+TSSOP8
+Integrated Circuit
+0
+8
+8
 Sensor_Motion
 Analog_LGA-16_3.25x3mm_P0.5mm_LayoutBorder3x5y
 LGA, 16 Pin (https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL363.pdf#page=44)
@@ -104594,6 +104692,13 @@ API_Logo
 0
 0
 ruler_footprints_2025
+API_ROVER_WIREFRAME
+
+
+0
+0
+0
+ruler_footprints_2025
 BOBCAT_Const_Rover
 
 
@@ -104615,6 +104720,20 @@ BOBCAT_Symbol
 0
 0
 ruler_footprints_2025
+BOBCAT_WIREFRAME
+
+
+0
+0
+0
+ruler_footprints_2025
+BOBER_Logo_5mm
+
+
+0
+0
+0
+ruler_footprints_2025
 Bullet_Connector_4.2mm
 
 
@@ -104628,6 +104747,20 @@ Bullet_Connector_5mm
 0
 0
 0
+ruler_footprints_2025
+Copper_Decal
+
+
+0
+1
+1
+ruler_footprints_2025
+Copper_Decal2
+
+
+0
+1
+1
 ruler_footprints_2025
 Fork_Connector_5mm
 
@@ -104699,7 +104832,28 @@ IPRL_Helix_14mm
 0
 0
 ruler_footprints_2025
+IPRL_Helix_16mm
+
+
+0
+0
+0
+ruler_footprints_2025
+IPRL_Helix_20mm
+
+
+0
+0
+0
+ruler_footprints_2025
 Phillips Head 7mm
+
+
+0
+0
+0
+ruler_footprints_2025
+Pointing_Harry
 
 
 0
@@ -104727,6 +104881,13 @@ Integrated Circuit
 8
 8
 ruler_footprints_2025
+STRAY_WIREFRAME
+
+
+0
+0
+0
+ruler_footprints_2025
 Saturn_Ring_19mm
 
 
@@ -104748,6 +104909,20 @@ Spade_Connector_5mm
 0
 0
 ruler_footprints_2025
+Triton
+
+
+0
+0
+0
+ruler_footprints_2025
+Triton_Logo
+
+
+0
+0
+0
+ruler_footprints_2025
 Voyager_8mm
 
 
@@ -104761,3 +104936,17 @@ World_Map_33mm
 0
 0
 0
+ruler_footprints_2025
+World_Map_2025
+
+
+0
+0
+0
+μC
+ESP32S3WROOM1UN16
+ESP32-S3-WROOM-1U-N16-1
+Integrated Circuit
+0
+49
+49
