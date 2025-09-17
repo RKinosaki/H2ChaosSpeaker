@@ -17,6 +17,13 @@ MenuLevel levelVoices("Voices", 1, false, 1, 20);
 MenuLevel levelVolume("Volume", 2, false, 4, 10);
 MenuLevel levelEyes("Eyes", 3, false, 0);
 
+void setupDisplayFunctions(){
+  levelDefault.action = displayDefault;
+  levelVoices.action = displayVoices;
+  levelVolume.action = displayVolume;
+  levelEyes.action = displayEyes;
+}
+
 void setupFSMRelations(){
     levelDefault.next = &levelVolume;
     levelDefault.prev = &levelEyes;
@@ -36,6 +43,7 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
 
+  setupDisplayFunctions();
   setupFSMRelations();
   pinMode(Z_PIN, INPUT);
   pinMode(X_PIN, INPUT);
@@ -43,6 +51,7 @@ void setup() {
 
   Serial.println("Starting...");
 
+  boardState.currentLevel = &levelDefault;
   boardState.mutex = xSemaphoreCreateMutex();
 
   //Create Tasks

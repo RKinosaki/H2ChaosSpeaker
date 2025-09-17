@@ -26,9 +26,17 @@ public:   // <--- make constructor & members accessible
     MenuLevel* next;
     MenuLevel* prev;
 
+    void (*action)(MenuLevel&);
+
     // Constructor
-    MenuLevel(const char* n, uint8_t i, bool sel = false, uint8_t val = 0, uint8_t vm = 0)
-        : name(n), id(i), selected(sel), value(val), valueMax(vm), next(nullptr), prev(nullptr) {}
+    MenuLevel(const char* n, uint8_t i, bool sel = false, uint8_t val = 0, uint8_t vm = 0, void (*act)(MenuLevel&) = nullptr)
+        : name(n), id(i), selected(sel), value(val), valueMax(vm), next(nullptr), prev(nullptr), action(act) {}
+
+    void displayLevel(){
+        if (action){
+            action(*this);
+        }
+    }
 };
 
 //initialise level classes
@@ -37,12 +45,17 @@ extern MenuLevel levelVoices;
 extern MenuLevel levelVolume;
 extern MenuLevel levelEyes;
 
+void displayDefault(MenuLevel& level);
+void displayVoices(MenuLevel& level);
+void displayVolume(MenuLevel& level);
+void displayEyes(MenuLevel& level);
+
 
 
 
 /*<-----    Shared variables    ----->*/
 struct sysState{
-    MenuLevel* currentLevel = &levelDefault;
+    MenuLevel* currentLevel;
     SemaphoreHandle_t mutex;
 };
 
