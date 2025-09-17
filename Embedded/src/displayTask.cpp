@@ -8,22 +8,126 @@ TaskHandle_t displayHandle = nullptr;
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, SCL, SDA);
 
-void displayDefault(MenuLevel& level){
-  u8g2.drawStr(0, 26, level.name);
+int alignCentre(const char* t){
+  return (u8g2.getDisplayWidth() - u8g2.getStrWidth(t))/2;
+}
 
+int alignRight(const char* t){
+  return u8g2.getDisplayWidth() - u8g2.getStrWidth(t);
+}
+
+void displayDefault(MenuLevel& level){
+  uint8_t currentVolume = level.next->value;
+  uint8_t currentTrack = level.next->next->value;
+  uint8_t currentVolt = boardState.currentVoltage;
+  u8g2.setFont(u8g2_font_open_iconic_play_2x_t);
+
+  // Volume Symmbol
+  if(currentVolume>6){
+    u8g2.drawGlyph(0, u8g2.getDisplayHeight()-16, 0x004F);
+  }
+  else if (currentVolume==0){
+    u8g2.drawGlyph(0, u8g2.getDisplayHeight()-16, 0x0051);
+  }
+  else{
+    u8g2.drawGlyph(0, u8g2.getDisplayHeight()-16, 0x0050);
+  }
+
+  //Track symbol
+  u8g2.drawGlyph(u8g2.getDisplayWidth()/2, u8g2.getDisplayHeight()-16, 0x0040); 
+
+  // Play symbol
+  if(level.selected){
+    u8g2.drawGlyph(u8g2.getDisplayWidth()/2, 24, 0x0044);
+  }
+  else{
+    u8g2.drawGlyph(u8g2.getDisplayWidth()/2, 24, 0x0045);
+  }
+
+  // Battery symbol
+
+  u8g2.setFont(u8g2_font_open_iconic_embedded_2x_t);
+  if(currentVolt>30){
+    u8g2.drawGlyph(0, 24, 0x0049);
+  }
+  else{
+    u8g2.drawGlyph(0, 24, 0x0040);
+  }
+
+  u8g2.setFont(u8g2_font_spleen6x12_me);
+  u8g2.setDrawColor(0);
+  //Select value
+  if(level.selected){
+    u8g2.drawStr(u8g2.getDisplayWidth()/2+24, 20, "STOP");
+  }
+  else{
+    u8g2.drawStr(u8g2.getDisplayWidth()/2+24, 20, "PLAY");
+  }
+  u8g2.setDrawColor(1);
+
+    //Voltage value
+  char bufB[4];
+  itoa(currentVolt, bufB, 10);
+  u8g2.drawStr(24, 20, bufB);
+
+  u8g2.setFont(u8g2_font_spleen12x24_me);
+
+  //Volume value
+  char bufV[4];
+  itoa(currentVolume, bufV, 10);
+  u8g2.drawStr(24, u8g2.getDisplayHeight()-16, bufV);
+
+
+  //Track value
+  char bufT[4];
+  itoa(currentTrack, bufT, 10);
+  u8g2.drawStr((u8g2.getDisplayWidth()/2)+24, u8g2.getDisplayHeight()-16, bufT);
+  
+}
+
+void drawLeftArrow(int xString){
+  int offset = 8;
+  u8g2.drawTriangle(xString-offset, 24, xString-offset, 0, xString-19, 12);
+}
+
+void drawRightArrow(int xString){
+  int offset = 8;
+  u8g2.drawTriangle(xString + offset, 24, xString+offset, 0, xString+19, 12);
 }
 
 void displayVolume(MenuLevel& level){
-  u8g2.drawStr(0, 26, level.name);
-  u8g2.setDrawColor(0);
-  u8g2.drawBox(0, 60, 40, 20);
+  //Title
+  int titleXLeft = alignCentre(level.name);
+  int titleXRight = titleXLeft + u8g2.getStrWidth(level.name);
+  if (level.selected){
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0 , 0, u8g2.getDisplayWidth(), 28);
+
+    u8g2.setDrawColor(0);
+    u8g2.drawStr(titleXLeft, 20, level.name);
+    drawLeftArrow(titleXLeft);
+    drawRightArrow(titleXRight);
+
+    u8g2.setDrawColor(1);
+  }
+  else{
+    u8g2.drawStr(titleXLeft, 20, level.name);
+    drawLeftArrow(titleXLeft);
+    drawRightArrow(titleXRight);
+  }
+  
+  //Volume Bar
+  u8g2.setFontMode(1);
+  u8g2.setDrawColor(2);
+  int boxWidth = level.value*u8g2.getDisplayWidth()/level.valueMax;
+  u8g2.drawBox(0, 36, boxWidth, 30);
   char buf[4];
   itoa(level.value, buf, 10);
-  u8g2.drawStr(40, 60, buf);
+  u8g2.drawStr(alignRight(buf), 57, buf);
 }
 
 void displayVoices(MenuLevel& level){
-  u8g2.drawStr(0, 26, level.name);
+  u8g2.drawStr(alignCentre(level.name), 24, level.name);
   u8g2.setDrawColor(1);
   char buf[4];
   itoa(level.value, buf, 10);
@@ -31,11 +135,11 @@ void displayVoices(MenuLevel& level){
 }
 
 void displayEyes(MenuLevel& level){
-  u8g2.drawStr(0, 26, level.name);
+  u8g2.drawStr(alignCentre(level.name), 26, level.name);
 }
 
 void setupOLED(){
-    u8g2.setFont(u8g2_font_spleen16x32_mf);
+    u8g2.setFont(u8g2_font_spleen12x24_me);
     u8g2.setDrawColor(1);
     u8g2.begin();
 };
@@ -52,8 +156,6 @@ void displayOLED(void* pvParameters){
       vTaskDelayUntil(&xLastWakeTime, xFrequency);
       u8g2.clearBuffer();
       xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-        const char* currentLevel = boardState.currentLevel->name;
-        u8g2.setDrawColor(!boardState.currentLevel->selected);
         boardState.currentLevel->displayLevel();
       xSemaphoreGive(boardState.mutex);
       u8g2.sendBuffer();

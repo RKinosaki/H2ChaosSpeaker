@@ -55,6 +55,7 @@ void displayEyes(MenuLevel& level);
 
 /*<-----    Shared variables    ----->*/
 struct sysState{
+    uint8_t currentVoltage = 100;
     MenuLevel* currentLevel;
     SemaphoreHandle_t mutex;
 };
