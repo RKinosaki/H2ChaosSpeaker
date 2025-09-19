@@ -3,6 +3,7 @@
 #include "config.h"
 #include <array>
 #include "DYPlayerESP32.h"
+#include "track.h"
 
 TaskHandle_t displayHandle = nullptr;
 
@@ -142,11 +143,33 @@ void displayVolume(MenuLevel& level){
 void displayTracks(MenuLevel& level){
   uint8_t currentTrack = boardState.currentTrack;
   xSemaphoreGive(boardState.mutex);
-  u8g2.drawStr(alignCentre(level.name), 24, level.name);
-  u8g2.setDrawColor(1);
-  char buf[4];
+
+  //Title Row
+  int titleXLeft = alignCentre(level.name);
+  int titleXRight = titleXLeft + u8g2.getStrWidth(level.name);
+  if (level.selected){
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0 , 0, u8g2.getDisplayWidth(), 28);
+
+    u8g2.setDrawColor(0);
+    u8g2.drawStr(titleXLeft, 20, level.name);
+    drawLeftArrow(titleXLeft);
+    drawRightArrow(titleXRight);
+
+    u8g2.setDrawColor(1);
+  }
+  else{
+    u8g2.drawStr(titleXLeft, 20, level.name);
+    drawLeftArrow(titleXLeft);
+    drawRightArrow(titleXRight);
+  }
+
+  //Track display
+  char buf[6];
   itoa(currentTrack, buf, 10);
-  u8g2.drawStr(40, 60, buf);
+  strcat(buf, ":");
+  u8g2.drawStr(0, 60, buf);
+  u8g2.drawStr(alignRight(trackDescription[currentTrack-1]),  60, trackDescription[currentTrack-1]);
 }
 
 void displayEyes(MenuLevel& level){
