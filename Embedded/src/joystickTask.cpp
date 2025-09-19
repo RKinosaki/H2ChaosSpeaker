@@ -43,7 +43,7 @@ char SerialReadDirection(){
 }
 
 
-void changeMenuLevel(char direction){
+void changeMenuLevel(char direction, uint8_t id){
   if (direction == 'r'){
     xSemaphoreTake(boardState.mutex, portMAX_DELAY);
     boardState.currentLevel = boardState.currentLevel->next;
@@ -57,6 +57,9 @@ void changeMenuLevel(char direction){
   else if (direction == 'p'){
     xSemaphoreTake(boardState.mutex, portMAX_DELAY);
     boardState.currentLevel->selected = true;
+    if (id==1 or id==2){
+      boardState.playAudio = true;
+    }
     xSemaphoreGive(boardState.mutex);
     Serial.println("Selected");
   }
@@ -65,36 +68,56 @@ void changeMenuLevel(char direction){
   }
 }
 
-void changeValueLevel(char direction){
+void changeValueLevel(char direction, uint8_t id){
+    uint8_t currentValue;
     xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-    uint8_t currentValue = boardState.currentLevel->value;
+    if(id == 1){
+      currentValue = boardState.currentVolume;
+    }
+    else if (id==2){
+      currentValue = boardState.currentTrack;
+    }
+    else{
+      ;
+    }
     uint8_t maxValue = boardState.currentLevel->valueMax;
     xSemaphoreGive(boardState.mutex);
     if (direction == 'r'){
         currentValue == maxValue ? currentValue = 0 : currentValue+=1;
         Serial.print("Current value: ");
         Serial.println(currentValue);
-        xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-        boardState.currentLevel->value = currentValue;
-        xSemaphoreGive(boardState.mutex);
     }
     else if (direction == 'l'){
         currentValue == 0 ? currentValue = maxValue : currentValue-=1;
         Serial.print("Current value: ");
         Serial.println(currentValue);
-        xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-        boardState.currentLevel->value = currentValue;
-        xSemaphoreGive(boardState.mutex);
     }
     else if (direction == 'p'){
         xSemaphoreTake(boardState.mutex, portMAX_DELAY);
         boardState.currentLevel->selected = false;
         xSemaphoreGive(boardState.mutex);
+        if(id == 1 or id==2){
+          boardState.playAudio = false;
+        }
+        else{
+          ;
+        }
         Serial.println("Unselected");
     }
     else{
         ;
     }
+    xSemaphoreTake(boardState.mutex, portMAX_DELAY);
+      if(id == 1){
+        boardState.currentVolume = currentValue;
+      }
+      else if (id==2){
+        boardState.currentTrack = currentValue;
+      }
+      else{
+        ;
+      }
+    xSemaphoreGive(boardState.mutex);
 }
 
 
@@ -107,17 +130,19 @@ void controlJoystick(void* pvParameters){
     for (;;)
     {
       vTaskDelayUntil(&xLastWakeTime, xFrequency);
+        // Serial.println("Doing JS Task...");
       uint8_t joyX = analogRead(X_PIN);
       uint8_t joyY = analogRead(Y_PIN);
       uint8_t joyZ = digitalRead(Z_PIN);
       xSemaphoreTake(boardState.mutex, portMAX_DELAY);
       const bool isSelected = boardState.currentLevel->selected;
+      uint8_t id = boardState.currentLevel->id;
       xSemaphoreGive(boardState.mutex);
       if(isSelected){
-        changeValueLevel(SerialReadDirection());
+        changeValueLevel(SerialReadDirection(), id);
       }
       else{
-        changeMenuLevel(SerialReadDirection());
+        changeMenuLevel(SerialReadDirection(), id);
       }
     }
 }

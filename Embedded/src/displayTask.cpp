@@ -2,9 +2,9 @@
 #include "U8g2lib.h"
 #include "config.h"
 #include <array>
+#include "DYPlayerESP32.h"
 
 TaskHandle_t displayHandle = nullptr;
-
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, SCL, SDA);
 
@@ -17,11 +17,11 @@ int alignRight(const char* t){
 }
 
 void displayDefault(MenuLevel& level){
-  uint8_t currentVolume = level.next->value;
-  uint8_t currentTrack = level.next->next->value;
-  uint8_t currentVolt = boardState.currentVoltage;
+    uint8_t currentTrack = boardState.currentTrack;
+    uint8_t currentVoltage = boardState.currentVoltage;
+    uint8_t currentVolume = boardState.currentVolume;
+  xSemaphoreGive(boardState.mutex);
   u8g2.setFont(u8g2_font_open_iconic_play_2x_t);
-
   // Volume Symmbol
   if(currentVolume>6){
     u8g2.drawGlyph(0, u8g2.getDisplayHeight()-16, 0x004F);
@@ -39,15 +39,21 @@ void displayDefault(MenuLevel& level){
   // Play symbol
   if(level.selected){
     u8g2.drawGlyph(u8g2.getDisplayWidth()/2, 24, 0x0044);
+    xSemaphoreTake(boardState.mutex, portMAX_DELAY);
+      boardState.playAudio = true;  
+    xSemaphoreGive(boardState.mutex);
   }
   else{
     u8g2.drawGlyph(u8g2.getDisplayWidth()/2, 24, 0x0045);
+    xSemaphoreTake(boardState.mutex, portMAX_DELAY);
+      boardState.playAudio = false;  
+    xSemaphoreGive(boardState.mutex);
   }
 
   // Battery symbol
 
   u8g2.setFont(u8g2_font_open_iconic_embedded_2x_t);
-  if(currentVolt>30){
+  if(currentVoltage>30){
     u8g2.drawGlyph(0, 24, 0x0049);
   }
   else{
@@ -67,7 +73,7 @@ void displayDefault(MenuLevel& level){
 
     //Voltage value
   char bufB[4];
-  itoa(currentVolt, bufB, 10);
+  itoa(currentVoltage, bufB, 10);
   u8g2.drawStr(24, 20, bufB);
 
   u8g2.setFont(u8g2_font_spleen12x24_me);
@@ -76,6 +82,7 @@ void displayDefault(MenuLevel& level){
   char bufV[4];
   itoa(currentVolume, bufV, 10);
   u8g2.drawStr(24, u8g2.getDisplayHeight()-16, bufV);
+  // player.setVolume(currentVolume);
 
 
   //Track value
@@ -96,6 +103,8 @@ void drawRightArrow(int xString){
 }
 
 void displayVolume(MenuLevel& level){
+  uint8_t currentVolume = boardState.currentVolume;
+  xSemaphoreGive(boardState.mutex);
   //Title
   int titleXLeft = alignCentre(level.name);
   int titleXRight = titleXLeft + u8g2.getStrWidth(level.name);
@@ -119,18 +128,24 @@ void displayVolume(MenuLevel& level){
   //Volume Bar
   u8g2.setFontMode(1);
   u8g2.setDrawColor(2);
-  int boxWidth = level.value*u8g2.getDisplayWidth()/level.valueMax;
+  int boxWidth = currentVolume*u8g2.getDisplayWidth()/level.valueMax;
   u8g2.drawBox(0, 36, boxWidth, 30);
   char buf[4];
-  itoa(level.value, buf, 10);
+  // Serial.println(currentVolume);
+  itoa(currentVolume, buf, 10);
   u8g2.drawStr(alignRight(buf), 57, buf);
+  player.setVolume(3*currentVolume);
+  u8g2.setFontMode(0);
+
 }
 
-void displayVoices(MenuLevel& level){
+void displayTracks(MenuLevel& level){
+  uint8_t currentTrack = boardState.currentTrack;
+  xSemaphoreGive(boardState.mutex);
   u8g2.drawStr(alignCentre(level.name), 24, level.name);
   u8g2.setDrawColor(1);
   char buf[4];
-  itoa(level.value, buf, 10);
+  itoa(currentTrack, buf, 10);
   u8g2.drawStr(40, 60, buf);
 }
 
@@ -151,14 +166,19 @@ void displayOLED(void* pvParameters){
     const TickType_t xFrequency = configTICK_RATE_HZ / DISPLAY_FREQ;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     setupOLED();
+    int taskcount = 0;
     for (;;)
     {
       vTaskDelayUntil(&xLastWakeTime, xFrequency);
       u8g2.clearBuffer();
       xSemaphoreTake(boardState.mutex, portMAX_DELAY);
+        // Serial.println(boardState.currentLevel->id);
         boardState.currentLevel->displayLevel();
-      xSemaphoreGive(boardState.mutex);
+      //xSemaphoreGive(boardState.mutex); this is done within each function so no need
+      // Serial.print("Task count: ");
+      // Serial.println(taskcount);
       u8g2.sendBuffer();
+      // taskcount++;
     }
 }
 
