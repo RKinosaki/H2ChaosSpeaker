@@ -7,6 +7,7 @@
 #include "config.h"
 #include "Wire.h"
 #include "DYPlayerESP32.h"
+#include <EEPROM.h>
 
 
 sysState boardState;
@@ -28,17 +29,17 @@ void setupDisplayFunctions(){
 }
 
 void setupFSMRelations(){
-    levelDefault.next = &levelVolume;
-    levelDefault.prev = &levelEyes;
+    levelDefault.down = &levelVoices;
+    levelDefault.left = &levelVolume;
 
-    levelVolume.next = &levelVoices;
-    levelVolume.prev = &levelDefault;
+    levelVolume.up = &levelDefault;
+    levelVolume.right = &levelVoices;
 
-    levelVoices.next = &levelEyes;
-    levelVoices.prev = &levelVolume;
+    levelVoices.up = &levelDefault;
+    levelVoices.left = &levelVolume;
+    levelVoices.down = &levelEyes;
 
-    levelEyes.next = &levelDefault;
-    levelEyes.prev = &levelVoices;
+    levelEyes.up = &levelVoices;
 }
 
 void setup() {
@@ -50,12 +51,18 @@ void setup() {
   pinMode(Z_PIN, INPUT);
   pinMode(X_PIN, INPUT);
   pinMode(Y_PIN, INPUT);
+  pinMode(BAT_PIN, INPUT);
+
+  EEPROM.begin(512);
+  
 
   Serial.println("Starting...");
 
   boardState.currentLevel = &levelDefault;
   boardState.mutex = xSemaphoreCreateMutex();
 
+  EEPROM.get(1, boardState.currentVolume);
+  EEPROM.get(2, boardState.currentTrack);
   //Create Tasks
 
   #if DISPLAY_DATA

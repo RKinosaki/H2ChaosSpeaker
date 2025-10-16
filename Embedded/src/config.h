@@ -11,20 +11,23 @@
 #define DISPLAY_FREQ 100
 #define DISPLAY_PRIORITY 1
 
+#define BAT_PIN 2
+
 //Joystick Task
 #define READ_JOYSTICK true
 #define JOYSTICK_FREQ 10
 #define JOYSTICK_PRIORITY 2
+#define LOCK_DURATION 8
 
 //Servo task
 #define MOVE_SERVO false
 #define SERVO_FREQ 5
 #define SERVO_PRIORITY 3
 
-#define deadzone 500
+#define deadzone 200
 
 //Audio task
-#define PLAY_AUDIO true
+#define PLAY_AUDIO false
 #define AUDIO_FREQ 2
 #define AUDIO_PRIORITY 4
 

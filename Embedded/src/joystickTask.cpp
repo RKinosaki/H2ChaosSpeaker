@@ -1,32 +1,41 @@
 #include "task.h"
 #include "config.h"
+#include "EEPROM.h"
 
 TaskHandle_t joystickHandle = nullptr;
 
-char JSReadDirection(uint8_t joyX, uint8_t joyY, uint8_t joyZ){
+char JSReadDirection(int joyX, int joyY, int joyZ){
     char JSDirection;
-    if(abs(joyX)>abs(joyY)){
-        if(joyX>deadzone){
+    joyX -= 2048;
+    joyY -= 2048;
+    if (joyZ == 0){
+      return 'p';
+    }
+    else if(abs(joyX)>abs(joyY)){
+        if(joyX> deadzone){
             JSDirection = 'r';
         }
-        else if(joyX<-deadzone){
+        else if(joyX< -deadzone){
             JSDirection = 'l';
         }
         else{
             JSDirection = 'n';
         }
     }
+    
     else{
-        if(joyY>deadzone){
-            JSDirection = 'u';
-        }
-        else if(joyY<-deadzone){
+        if(joyY > deadzone){
             JSDirection = 'd';
+        }
+        else if(joyY<- deadzone){
+            JSDirection = 'u';
         }
         else{
             JSDirection = 'n';
         }
     }
+   
+    Serial.println(JSDirection);
     return JSDirection;
 }
 
@@ -46,18 +55,48 @@ char SerialReadDirection(){
 void changeMenuLevel(char direction, uint8_t id){
   if (direction == 'r'){
     xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-    boardState.currentLevel = boardState.currentLevel->next;
+    if (boardState.currentLevel->right != nullptr){
+      boardState.currentLevel = boardState.currentLevel->right;
+    }
+    else{
+      boardState.currentLevel = boardState.currentLevel;
+    }
     xSemaphoreGive(boardState.mutex);
   }
   else if (direction == 'l'){
     xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-    boardState.currentLevel = boardState.currentLevel->prev;
+    if (boardState.currentLevel->left != nullptr){
+      boardState.currentLevel = boardState.currentLevel->left;
+    }
+    else{
+      boardState.currentLevel = boardState.currentLevel;
+    }
+    xSemaphoreGive(boardState.mutex);
+  }
+  else if (direction == 'u'){
+    xSemaphoreTake(boardState.mutex, portMAX_DELAY);
+    if (boardState.currentLevel->up != nullptr){
+      boardState.currentLevel = boardState.currentLevel->up;
+    }
+    else{
+      boardState.currentLevel = boardState.currentLevel;
+    }
+    xSemaphoreGive(boardState.mutex);
+  }
+  else if (direction == 'd'){
+    xSemaphoreTake(boardState.mutex, portMAX_DELAY);
+    if (boardState.currentLevel->down != nullptr){
+      boardState.currentLevel = boardState.currentLevel->down;
+    }
+    else{
+      boardState.currentLevel = boardState.currentLevel;
+    }
     xSemaphoreGive(boardState.mutex);
   }
   else if (direction == 'p'){
     xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-    boardState.currentLevel->selected = true;
-    if (id==1 or id==2){
+    boardState.isSelected = true;
+    if (id==0){
       boardState.playAudio = true;
     }
     xSemaphoreGive(boardState.mutex);
@@ -94,14 +133,25 @@ void changeValueLevel(char direction, uint8_t id){
     }
     else if (direction == 'p'){
         xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-        boardState.currentLevel->selected = false;
-        xSemaphoreGive(boardState.mutex);
-        if(id == 1 or id==2){
+        boardState.isSelected = false;
+        
+        switch (id)
+        {
+        case 0:
           boardState.playAudio = false;
+          break;
+        
+        case 1:
+          EEPROM.put(id, boardState.currentVolume);
+          EEPROM.commit();
+        
+        case 2:
+          EEPROM.put(id, boardState.currentTrack);
+          EEPROM.commit();
+        default:
+          break;
         }
-        else{
-          ;
-        }
+        xSemaphoreGive(boardState.mutex);
         Serial.println("Unselected");
     }
     else{
@@ -123,26 +173,39 @@ void changeValueLevel(char direction, uint8_t id){
 
 void controlJoystick(void* pvParameters){
     (void)pvParameters;
-
+    bool lockThread = false;
+    uint8_t threadCounter = 0;
     /* Make the task execute at a specified frequency */
     const TickType_t xFrequency = configTICK_RATE_HZ / JOYSTICK_FREQ;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     for (;;)
     {
       vTaskDelayUntil(&xLastWakeTime, xFrequency);
-        // Serial.println("Doing JS Task...");
-      uint8_t joyX = analogRead(X_PIN);
-      uint8_t joyY = analogRead(Y_PIN);
-      uint8_t joyZ = digitalRead(Z_PIN);
-      xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-      const bool isSelected = boardState.currentLevel->selected;
-      uint8_t id = boardState.currentLevel->id;
-      xSemaphoreGive(boardState.mutex);
-      if(isSelected){
-        changeValueLevel(SerialReadDirection(), id);
+      if (!lockThread){
+        int joyX = analogRead(X_PIN);
+        int joyY = analogRead(Y_PIN);
+        int joyZ = digitalRead(Z_PIN);
+        xSemaphoreTake(boardState.mutex, portMAX_DELAY);
+        const bool isSelected = boardState.isSelected;
+        uint8_t id = boardState.currentLevel->id;
+        xSemaphoreGive(boardState.mutex);
+        if(isSelected){
+          changeValueLevel(JSReadDirection(joyX, joyY, joyZ), id);
+        }
+        else{
+          changeMenuLevel(JSReadDirection(joyX, joyY, joyZ), id);
+        }
+        lockThread = true;
       }
       else{
-        changeMenuLevel(SerialReadDirection(), id);
+        threadCounter++;
+        if (threadCounter >= LOCK_DURATION){
+          lockThread = false;
+        }
+        else{
+          lockThread = true;
+        }
       }
+      
     }
 }
