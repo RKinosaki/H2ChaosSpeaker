@@ -20,8 +20,8 @@
 #define LOCK_DURATION 8
 
 //Servo task
-#define MOVE_SERVO false
-#define SERVO_FREQ 5
+#define MOVE_SERVO true
+#define SERVO_FREQ .2
 #define SERVO_PRIORITY 3
 
 #define deadzone 200

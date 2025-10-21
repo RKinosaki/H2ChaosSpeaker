@@ -45,6 +45,10 @@ void displayVolume(MenuLevel& level){
 void displayEyes(MenuLevel& level){
   u8g2.clearBuffer();
   u8g2.drawStr(alignCentre(level.name), 26, level.name);
+  uint8_t angle = boardState.currentAngle;
+  char bufA[4];
+  itoa(angle, bufA, 10);
+  u8g2.drawStr(u8g2.getDisplayWidth()/2, 40, bufA);
 }
 
 void displayMenu(){
@@ -126,7 +130,7 @@ void displayMenu(){
 
   //Track value
   char bufT[4];
-  itoa(currentTrack, bufT, 10);
+  itoa(currentTrack+1, bufT, 10);
   u8g2.drawStr((u8g2.getDisplayWidth()/2)+18+xShift, u8g2.getDisplayHeight()-16, bufT);
   
 }

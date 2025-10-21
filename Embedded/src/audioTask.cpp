@@ -3,7 +3,6 @@
 #include "config.h"
 #include "DYPlayerESP32.h"
 
-
 TaskHandle_t audioHandle = nullptr;
 
 
@@ -21,18 +20,23 @@ void playAudio(void* pvParameters){
         xSemaphoreTake(boardState.mutex, portMAX_DELAY);
         uint8_t currentTrack = boardState.currentTrack;
         bool currentPlayAudio = boardState.playAudio;
+        uint8_t currentVolume = boardState.currentVolume;
         xSemaphoreGive(boardState.mutex);
         auto status = player.checkPlayState();
         if(status==DY::PlayState::Stopped){
             audioEnded = true;
+            Serial.println("Audio stopped");
         }
         else{
             audioEnded = false;
+            Serial.println("Audio playing");
         }
         bool playTrack;
         if(audioEnded and currentPlayAudio){
-            // Serial.println("Playing Track...");**-
-            player.playSpecified(currentTrack);
+            player.setVolume(currentVolume);
+            Serial.print("Playing Track... ");
+            Serial.println(currentTrack);
+            player.playSpecified(currentTrack+1);
         }
         else if(!currentPlayAudio){
             player.stop();

@@ -35,7 +35,7 @@ char JSReadDirection(int joyX, int joyY, int joyZ){
         }
     }
    
-    Serial.println(JSDirection);
+    // Serial.println(JSDirection);
     return JSDirection;
 }
 
@@ -99,6 +99,9 @@ void changeMenuLevel(char direction, uint8_t id){
     if (id==0){
       boardState.playAudio = true;
     }
+    else if(id==3){
+      boardState.moveServo = true;
+    }
     xSemaphoreGive(boardState.mutex);
     Serial.println("Selected");
   }
@@ -116,18 +119,23 @@ void changeValueLevel(char direction, uint8_t id){
     else if (id==2){
       currentValue = boardState.currentTrack;
     }
+    else if (id==3){
+      currentValue = boardState.currentAngle;
+    }
     else{
       ;
     }
     uint8_t maxValue = boardState.currentLevel->valueMax;
+    uint8_t step = boardState.currentLevel->step;
+    Serial.println(currentValue);
     xSemaphoreGive(boardState.mutex);
     if (direction == 'r'){
-        currentValue == maxValue ? currentValue = 0 : currentValue+=1;
+        currentValue == maxValue ? currentValue = 0 : currentValue += step;
         Serial.print("Current value: ");
         Serial.println(currentValue);
     }
     else if (direction == 'l'){
-        currentValue == 0 ? currentValue = maxValue : currentValue-=1;
+        currentValue == 0 ? currentValue = maxValue : currentValue -= step;
         Serial.print("Current value: ");
         Serial.println(currentValue);
     }
@@ -148,6 +156,8 @@ void changeValueLevel(char direction, uint8_t id){
         case 2:
           EEPROM.put(id, boardState.currentTrack);
           EEPROM.commit();
+        case 3:
+          boardState.moveServo = false;
         default:
           break;
         }
@@ -163,6 +173,9 @@ void changeValueLevel(char direction, uint8_t id){
       }
       else if (id==2){
         boardState.currentTrack = currentValue;
+      }
+      else if(id==3){
+        boardState.currentAngle = currentValue;
       }
       else{
         ;
