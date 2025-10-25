@@ -44,18 +44,18 @@ void displayVolume(MenuLevel& level){
 
 void displayEyes(MenuLevel& level){
   u8g2.clearBuffer();
-  u8g2.drawStr(alignCentre(level.name), 26, level.name);
-  uint8_t angle = boardState.currentAngle;
-  char bufA[4];
-  itoa(angle, bufA, 10);
-  u8g2.drawStr(u8g2.getDisplayWidth()/2, 40, bufA);
+  u8g2.drawStr(alignCentre(level.name), 20, level.name);
+  int8_t angle = boardState.currentAngle;
+  u8g2.setFont(u8g2_font_open_iconic_human_4x_t);
+  uint8_t offset = (u8g2.getDisplayWidth()-40)*(angle+90)/180;
+  u8g2.drawGlyph(5 + offset, u8g2.getDisplayHeight()/2+30, 0x0040);
 }
 
 void displayMenu(){
   const uint8_t xShift = 16;
   xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-    uint8_t currentTrack = boardState.currentTrack;
-    uint8_t currentVolume = boardState.currentVolume;
+    int8_t currentTrack = boardState.currentTrack;
+    int8_t currentVolume = boardState.currentVolume;
     bool currentSelected = boardState.isSelected;
     bool currentPlayAudio = boardState.playAudio;
   xSemaphoreGive(boardState.mutex);

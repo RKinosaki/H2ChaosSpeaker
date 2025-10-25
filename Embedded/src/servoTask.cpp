@@ -40,8 +40,8 @@ void moveServo(void* pvParameters){
     {
       vTaskDelayUntil(&xLastWakeTime, xFrequency);
       xSemaphoreTake(boardState.mutex, portMAX_DELAY);
-        uint8_t pos = boardState.currentAngle;
-        bool moveServo = boardState.moveServo;
+        int8_t pos = boardState.currentAngle;
+        bool moveServo = (boardState.currentLevel->id==3) && (boardState.isSelected);
       xSemaphoreGive(boardState.mutex);
       if(moveServo){
         servoSweep(pos);

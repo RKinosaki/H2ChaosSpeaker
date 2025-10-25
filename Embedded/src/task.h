@@ -19,7 +19,8 @@ class MenuLevel {
 public:
     const char* name;
     uint8_t id;
-    uint8_t valueMax;
+    int8_t valueMin;
+    int8_t valueMax;
     uint8_t step;
 
     MenuLevel* up;
@@ -30,8 +31,8 @@ public:
     void (*action)(MenuLevel&);
 
     // Constructor
-    MenuLevel(const char* n, uint8_t i, bool sel = false,  uint8_t vm = 0, uint8_t s = 1, void (*act)(MenuLevel&) = nullptr)
-        : name(n), id(i), valueMax(vm), step(s), up(nullptr), down(nullptr), left(nullptr), right(nullptr), action(act) {}
+    MenuLevel(const char* n, uint8_t i, bool sel = false, int8_t  vmin = 0, int8_t vmax = 0, int8_t s = 1, void (*act)(MenuLevel&) = nullptr)
+        : name(n), id(i), valueMin(vmin), valueMax(vmax), step(s), up(nullptr), down(nullptr), left(nullptr), right(nullptr), action(act) {}
 
     void displayLevel(){
         if (action){
@@ -63,12 +64,11 @@ extern DY::Player player;
 struct sysState{
     uint8_t currentVoltage = 100;
     MenuLevel* currentLevel;
-    uint8_t currentTrack = 0;
-    uint8_t currentVolume = 3;
-    uint8_t currentAngle = 0;
+    int8_t currentTrack = 0;
+    int8_t currentVolume = 3;
+    int8_t currentAngle = 0;
     bool isSelected = false;
     bool playAudio = false;
-    bool moveServo = false;
     SemaphoreHandle_t mutex;
 };
 

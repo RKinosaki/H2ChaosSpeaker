@@ -16,9 +16,9 @@ sysState boardState;
 float x, y, z = 0;
 
 MenuLevel levelDefault("Default", 0);
-MenuLevel levelVolume("Volume", 1, false, 10);
-MenuLevel levelVoices("Tracks", 2, false, 19);
-MenuLevel levelEyes("Eyes", 3, false, 180, 15);
+MenuLevel levelVolume("Volume", 1, false, 0, 10);
+MenuLevel levelVoices("Tracks", 2, false, 0, 19);
+MenuLevel levelEyes("Eyes", 3, false, -90, 90, 15);
 DY::Player player(UART_NUM_0, TX, RX);
 
 void setupDisplayFunctions(){

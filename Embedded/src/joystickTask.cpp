@@ -99,9 +99,6 @@ void changeMenuLevel(char direction, uint8_t id){
     if (id==0){
       boardState.playAudio = true;
     }
-    else if(id==3){
-      boardState.moveServo = true;
-    }
     xSemaphoreGive(boardState.mutex);
     Serial.println("Selected");
   }
@@ -111,7 +108,7 @@ void changeMenuLevel(char direction, uint8_t id){
 }
 
 void changeValueLevel(char direction, uint8_t id){
-    uint8_t currentValue;
+    int8_t currentValue;
     xSemaphoreTake(boardState.mutex, portMAX_DELAY);
     if(id == 1){
       currentValue = boardState.currentVolume;
@@ -125,8 +122,9 @@ void changeValueLevel(char direction, uint8_t id){
     else{
       ;
     }
-    uint8_t maxValue = boardState.currentLevel->valueMax;
-    uint8_t step = boardState.currentLevel->step;
+    int8_t minValue = boardState.currentLevel->valueMin;
+    int8_t maxValue = boardState.currentLevel->valueMax;
+    int8_t step = boardState.currentLevel->step;
     Serial.println(currentValue);
     xSemaphoreGive(boardState.mutex);
     if (direction == 'r'){
@@ -135,7 +133,7 @@ void changeValueLevel(char direction, uint8_t id){
         Serial.println(currentValue);
     }
     else if (direction == 'l'){
-        currentValue == 0 ? currentValue = maxValue : currentValue -= step;
+        currentValue == minValue ? currentValue = maxValue : currentValue -= step;
         Serial.print("Current value: ");
         Serial.println(currentValue);
     }
@@ -156,8 +154,6 @@ void changeValueLevel(char direction, uint8_t id){
         case 2:
           EEPROM.put(id, boardState.currentTrack);
           EEPROM.commit();
-        case 3:
-          boardState.moveServo = false;
         default:
           break;
         }
