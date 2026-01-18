@@ -27,7 +27,7 @@
 #define deadzone 200
 
 //Audio task
-#define PLAY_AUDIO false
+#define PLAY_AUDIO true
 #define AUDIO_FREQ 2
 #define AUDIO_PRIORITY 4
 
